@@ -7,7 +7,7 @@ type Mode = "raccoon" | "troll" | "ogre" | "pigeon" | "all"
 
 type CreatureSpec = {
   label: string
-  color: "secondary" | "success" | "warning" | "info"
+  fg: string
   frames: string[]
   statuses: string[]
   tips: string[]
@@ -16,7 +16,7 @@ type CreatureSpec = {
 const CREATURES: Record<Exclude<Mode, "all">, CreatureSpec> = {
   raccoon: {
     label: "🦝 raccoon mode",
-    color: "secondary",
+    fg: "#c4a484",
     frames: [
 `      /\\         /\\
      /  \\_______/  \\
@@ -74,7 +74,7 @@ const CREATURES: Record<Exclude<Mode, "all">, CreatureSpec> = {
   },
   troll: {
     label: "🧌 troll mode",
-    color: "success",
+    fg: "#8db580",
     frames: [
 `       ___________
       /           \\
@@ -132,7 +132,7 @@ const CREATURES: Record<Exclude<Mode, "all">, CreatureSpec> = {
   },
   ogre: {
     label: "👹 ogre mode",
-    color: "warning",
+    fg: "#6b8e23",
     frames: [
 `        ____^____
        /         \\
@@ -190,7 +190,7 @@ const CREATURES: Record<Exclude<Mode, "all">, CreatureSpec> = {
   },
   pigeon: {
     label: "🕊️  pigeon mode",
-    color: "info",
+    fg: "#94a3b8",
     frames: [
 `       ___________
       /           \\
@@ -306,17 +306,11 @@ const tui: TuiPlugin = async (api, options) => {
       onCleanup(() => clearInterval(id))
     })
 
-    const colorFg = createMemo(() => {
-      const t = theme()
-      const c = current().color
-      return c === "secondary" ? t.secondary : c === "success" ? t.success : c === "warning" ? t.warning : t.info
-    })
-
     return (
       <box flexDirection="column" marginTop={1} paddingX={paddingX}>
-        <text fg={colorFg()}><b>{current().label}</b></text>
+        <text fg={current().fg}><b>{current().label}</b></text>
         <text fg={theme().textMuted}>· {current().statuses[status()]}</text>
-        <text fg={colorFg()}>{current().frames[frame()]}</text>
+        <text fg={current().fg}>{current().frames[frame()]}</text>
         <text fg={theme().textMuted}>tip: {current().tips[tip()]}</text>
       </box>
     )

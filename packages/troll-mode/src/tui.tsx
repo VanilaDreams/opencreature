@@ -91,9 +91,9 @@ const tui: TuiPlugin = async (api) => {
 
     return (
       <box flexDirection="column" marginTop={1} paddingX={paddingX}>
-        <text fg={theme().success}><b>🧌 troll mode</b></text>
+        <text fg="#8db580"><b>🧌 troll mode</b></text>
         <text fg={theme().textMuted}>· {STATUSES[status()]}</text>
-        <text fg={theme().success}>{FRAMES[frame()]}</text>
+        <text fg="#8db580">{FRAMES[frame()]}</text>
         <text fg={theme().textMuted}>tip: {TIPS[tip()]}</text>
       </box>
     )
