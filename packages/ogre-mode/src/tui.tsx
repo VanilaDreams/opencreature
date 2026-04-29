@@ -91,7 +91,7 @@ const tui: TuiPlugin = async (api) => {
 
     return (
       <box flexDirection="column" marginTop={1} paddingX={paddingX}>
-        <text fg="#6b8e23"><b>👹 ogre mode</b></text>
+        <text fg="#6b8e23"><b>ogre mode</b></text>
         <text fg={theme().textMuted}>· {STATUSES[status()]}</text>
         <text fg="#6b8e23">{FRAMES[frame()]}</text>
         <text fg={theme().textMuted}>tip: {TIPS[tip()]}</text>

@@ -1,6 +1,6 @@
 # opencode-creature-ogre
 
-OpenCode plugin. Turns the agent into a swamp ogre. 👹
+OpenCode plugin. Turns the agent into a swamp ogre. 
 
 Two halves:
 
@@ -19,8 +19,8 @@ Auto-populates `opencode.json` and `tui.json` thanks to `oc-plugin: ["server", "
 
 ```json
 {
-  "$schema": "https://opencode.ai/config.json",
-  "plugin": ["opencode-creature-ogre"]
+ "$schema": "https://opencode.ai/config.json",
+ "plugin": ["opencode-creature-ogre"]
 }
 ```
 

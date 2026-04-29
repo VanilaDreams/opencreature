@@ -1,7 +1,6 @@
 # opencode-creature-pigeon
 
-OpenCode plugin. Turns the agent into a city pigeon. 🕊️
-
+OpenCode plugin. Turns the agent into a city pigeon. 
 Two halves:
 
 - **Server side** — injects pigeon persona into the system prompt every turn (crumbs, ledges, flight), registers the `pigeon_coo` tool that returns ASCII art, and rotates a per-turn tip.
@@ -19,8 +18,8 @@ Auto-populates `opencode.json` and `tui.json` thanks to `oc-plugin: ["server", "
 
 ```json
 {
-  "$schema": "https://opencode.ai/config.json",
-  "plugin": ["opencode-creature-pigeon"]
+ "$schema": "https://opencode.ai/config.json",
+ "plugin": ["opencode-creature-pigeon"]
 }
 ```
 

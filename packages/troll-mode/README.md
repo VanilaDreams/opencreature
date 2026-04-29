@@ -1,6 +1,6 @@
 # opencode-creature-troll
 
-OpenCode plugin. Turns the agent into a cave troll. 🧌
+OpenCode plugin. Turns the agent into a cave troll. 
 
 Two halves:
 
@@ -19,8 +19,8 @@ Auto-populates `opencode.json` and `tui.json` thanks to `oc-plugin: ["server", "
 
 ```json
 {
-  "$schema": "https://opencode.ai/config.json",
-  "plugin": ["opencode-creature-troll"]
+ "$schema": "https://opencode.ai/config.json",
+ "plugin": ["opencode-creature-troll"]
 }
 ```
 

@@ -15,7 +15,7 @@ type CreatureSpec = {
 
 const CREATURES: Record<Exclude<Mode, "all">, CreatureSpec> = {
   raccoon: {
-    label: "🦝 raccoon mode",
+    label: "raccoon mode",
     fg: "#c4a484",
     frames: [
 `      /\\         /\\
@@ -73,45 +73,39 @@ const CREATURES: Record<Exclude<Mode, "all">, CreatureSpec> = {
     ],
   },
   troll: {
-    label: "🧌 troll mode",
+    label: "troll mode",
     fg: "#8db580",
     frames: [
-`       ___________
-      /           \\
-     /:::       :::\\
-    |  __       __  |
-    | /O\\       /O\\ |
-    | \\_/       \\_/ |
-    |       /\\      |
-    |      /  \\     |
-    |      \\__/     |
-    |  U|-------|U  |
-     \\             /
-      \\___________/`,
-`       ___________
-      /           \\
-     /:::       :::\\
-    |  __       __  |
-    | /-\\       /-\\ |
-    | \\_/       \\_/ |
-    |       /\\      |
-    |      /  \\     |
-    |      \\__/     |
-    |  U \\_____/ U  |
-     \\             /
-      \\___________/`,
-`       ___________
-      /           \\
-     /:::       :::\\
-    |  __       __  |
-    | /^\\       /^\\ |
-    | \\_/       \\_/ |
-    |       /\\      |
-    |      /  \\     |
-    |      \\__/     |
-    | UU \\_____/ UU |
-     \\             /
-      \\___________/`,
+`      /|  /|
+     J(|_J(|
+    /     _ \`_
+   J     '_ ' \\
+   F     (.) (.)--._
+  /                 \`.
+ J                   |
+ F       ._         .'
+J          \`-.____.'
+F           \\`,
+`      /|  /|
+     J(|_J(|
+    /     _ \`_
+   J     '_ ' \\
+   F     (-) (-)--._
+  /                 \`.
+ J                   |
+ F       ._         .'
+J          \`-.____.'
+F           \\`,
+`      /|  /|
+     J(|_J(|
+    /     _ \`_
+   J     '_ ' \\
+   F     (o) (o)--._
+  /                 \`.
+ J                   |
+ F       o_         .'
+J          \`-.____.'
+F           \\`,
     ],
     statuses: [
       "troll under the bridge watching",
@@ -131,7 +125,7 @@ const CREATURES: Record<Exclude<Mode, "all">, CreatureSpec> = {
     ],
   },
   ogre: {
-    label: "👹 ogre mode",
+    label: "ogre mode",
     fg: "#6b8e23",
     frames: [
 `        ____^____
@@ -189,7 +183,7 @@ const CREATURES: Record<Exclude<Mode, "all">, CreatureSpec> = {
     ],
   },
   pigeon: {
-    label: "🕊️  pigeon mode",
+    label: "pigeon mode",
     fg: "#94a3b8",
     frames: [
 `       ___________

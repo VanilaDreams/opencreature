@@ -1,6 +1,6 @@
 # opencode-creature-raccoon
 
-OpenCode plugin. Turns the agent into a raccoon. 🦝
+OpenCode plugin. Turns the agent into a raccoon. 
 
 Two halves:
 
@@ -21,8 +21,8 @@ If the package isn't on npm yet, install from a local tarball — see [Local ins
 
 ```json
 {
-  "$schema": "https://opencode.ai/config.json",
-  "plugin": ["opencode-creature-raccoon"]
+ "$schema": "https://opencode.ai/config.json",
+ "plugin": ["opencode-creature-raccoon"]
 }
 ```
 
@@ -42,7 +42,7 @@ The persona, tool, and TUI sidebar are all suppressed for that shell.
 cd packages/raccoon-mode
 bun install
 bun run build
-bun pm pack          # produces opencode-creature-raccoon-0.1.0.tgz
+bun pm pack # produces opencode-creature-raccoon-0.1.0.tgz
 opencode plugin /absolute/path/to/opencode-creature-raccoon-0.1.0.tgz
 ```
 
@@ -52,7 +52,7 @@ opencode plugin /absolute/path/to/opencode-creature-raccoon-0.1.0.tgz
 npm login
 cd packages/raccoon-mode
 bun run build
-bun publish          # or: npm publish --access public
+bun publish # or: npm publish --access public
 ```
 
 The build emits `dist/index.js` (server) and `dist/tui.js` (pre-compiled SolidJS for the TUI), both of which are listed in `package.json` `files`. The `oc-plugin: ["server", "tui"]` field tells OpenCode to load both targets.

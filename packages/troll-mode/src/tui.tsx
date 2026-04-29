@@ -3,42 +3,36 @@ import { createEffect, createSignal, onCleanup } from "solid-js"
 import type { TuiPlugin, TuiPluginModule } from "@opencode-ai/plugin/tui"
 
 const FRAMES = [
-`       ___________
-      /           \\
-     /:::       :::\\
-    |  __       __  |
-    | /O\\       /O\\ |
-    | \\_/       \\_/ |
-    |       /\\      |
-    |      /  \\     |
-    |      \\__/     |
-    |  U|-------|U  |
-     \\             /
-      \\___________/`,
-`       ___________
-      /           \\
-     /:::       :::\\
-    |  __       __  |
-    | /-\\       /-\\ |
-    | \\_/       \\_/ |
-    |       /\\      |
-    |      /  \\     |
-    |      \\__/     |
-    |  U \\_____/ U  |
-     \\             /
-      \\___________/`,
-`       ___________
-      /           \\
-     /:::       :::\\
-    |  __       __  |
-    | /^\\       /^\\ |
-    | \\_/       \\_/ |
-    |       /\\      |
-    |      /  \\     |
-    |      \\__/     |
-    | UU \\_____/ UU |
-     \\             /
-      \\___________/`,
+`      /|  /|
+     J(|_J(|
+    /     _ \`_
+   J     '_ ' \\
+   F     (.) (.)--._
+  /                 \`.
+ J                   |
+ F       ._         .'
+J          \`-.____.'
+F           \\`,
+`      /|  /|
+     J(|_J(|
+    /     _ \`_
+   J     '_ ' \\
+   F     (-) (-)--._
+  /                 \`.
+ J                   |
+ F       ._         .'
+J          \`-.____.'
+F           \\`,
+`      /|  /|
+     J(|_J(|
+    /     _ \`_
+   J     '_ ' \\
+   F     (o) (o)--._
+  /                 \`.
+ J                   |
+ F       o_         .'
+J          \`-.____.'
+F           \\`,
 ]
 
 const STATUSES = [
@@ -91,7 +85,7 @@ const tui: TuiPlugin = async (api) => {
 
     return (
       <box flexDirection="column" marginTop={1} paddingX={paddingX}>
-        <text fg="#8db580"><b>🧌 troll mode</b></text>
+        <text fg="#8db580"><b>troll mode</b></text>
         <text fg={theme().textMuted}>· {STATUSES[status()]}</text>
         <text fg="#8db580">{FRAMES[frame()]}</text>
         <text fg={theme().textMuted}>tip: {TIPS[tip()]}</text>
