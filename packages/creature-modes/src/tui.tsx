@@ -270,87 +270,82 @@ function rand<T>(arr: T[]): number {
   return Math.floor(Math.random() * arr.length)
 }
 
-function buildTui(options: PluginOptions | undefined): TuiPlugin {
+const tui: TuiPlugin = async (api, options) => {
+  if (process.env.OPENCREATURE_OFF) return
+
   const raw = (options?.mode as string | undefined) ?? "all"
   const mode: Mode = (KEYS as string[]).includes(raw) ? (raw as Mode) : "all"
 
-  return async (api) => {
-    if (process.env.OPENCREATURE_OFF) return
+  const renderCreature = (paddingX: number) => () => {
+    const [creatureIndex, setCreatureIndex] = createSignal(0)
+    const [frame, setFrame] = createSignal(0)
+    const [status, setStatus] = createSignal(0)
+    const [tip, setTip] = createSignal(0)
+    const theme = () => api.theme.current
 
-    const renderCreature = (paddingX: number) => () => {
-      const [creatureIndex, setCreatureIndex] = createSignal(0)
-      const [frame, setFrame] = createSignal(0)
-      const [status, setStatus] = createSignal(0)
-      const [tip, setTip] = createSignal(0)
-      const theme = () => api.theme.current
+    const list = mode === "all" ? KEYS : [mode as keyof typeof CREATURES]
+    const current = createMemo(() => CREATURES[list[creatureIndex() % list.length]!])
 
-      const list = mode === "all" ? KEYS : [mode as keyof typeof CREATURES]
-      const current = createMemo(() => CREATURES[list[creatureIndex() % list.length]!])
-
-      createEffect(() => {
-        const id = setInterval(() => {
-          setFrame((f) => (f + 1) % current().frames.length)
-        }, FRAME_MS)
-        onCleanup(() => clearInterval(id))
-      })
-
-      createEffect(() => {
-        const id = setInterval(() => {
-          setStatus((s) => (s + 1) % current().statuses.length)
-        }, STATUS_MS)
-        onCleanup(() => clearInterval(id))
-      })
-
-      createEffect(() => {
-        setTip(rand(current().tips))
-        const id = setInterval(() => {
-          setTip((t) => (t + 1) % current().tips.length)
-        }, TIP_MS)
-        onCleanup(() => clearInterval(id))
-      })
-
-      createEffect(() => {
-        if (list.length <= 1) return
-        const id = setInterval(() => {
-          setCreatureIndex((i) => i + 1)
-          setFrame(0)
-          setStatus(0)
-        }, ROTATE_MS)
-        onCleanup(() => clearInterval(id))
-      })
-
-      const colorFg = createMemo(() => {
-        const t = theme()
-        const c = current().color
-        return c === "secondary" ? t.secondary : c === "success" ? t.success : c === "warning" ? t.warning : t.info
-      })
-
-      return (
-        <box flexDirection="column" marginTop={1} paddingX={paddingX}>
-          <text fg={colorFg()}><b>{current().label}</b></text>
-          <text fg={theme().textMuted}>· {current().statuses[status()]}</text>
-          <text fg={colorFg()}>{current().frames[frame()]}</text>
-          <text fg={theme().textMuted}>tip: {current().tips[tip()]}</text>
-        </box>
-      )
-    }
-
-    api.slots.register({
-      order: 100,
-      slots: {
-        home_bottom: renderCreature(1),
-        sidebar_content: renderCreature(0),
-      },
+    createEffect(() => {
+      const id = setInterval(() => {
+        setFrame((f) => (f + 1) % current().frames.length)
+      }, FRAME_MS)
+      onCleanup(() => clearInterval(id))
     })
+
+    createEffect(() => {
+      const id = setInterval(() => {
+        setStatus((s) => (s + 1) % current().statuses.length)
+      }, STATUS_MS)
+      onCleanup(() => clearInterval(id))
+    })
+
+    createEffect(() => {
+      setTip(rand(current().tips))
+      const id = setInterval(() => {
+        setTip((t) => (t + 1) % current().tips.length)
+      }, TIP_MS)
+      onCleanup(() => clearInterval(id))
+    })
+
+    createEffect(() => {
+      if (list.length <= 1) return
+      const id = setInterval(() => {
+        setCreatureIndex((i) => i + 1)
+        setFrame(0)
+        setStatus(0)
+      }, ROTATE_MS)
+      onCleanup(() => clearInterval(id))
+    })
+
+    const colorFg = createMemo(() => {
+      const t = theme()
+      const c = current().color
+      return c === "secondary" ? t.secondary : c === "success" ? t.success : c === "warning" ? t.warning : t.info
+    })
+
+    return (
+      <box flexDirection="column" marginTop={1} paddingX={paddingX}>
+        <text fg={colorFg()}><b>{current().label}</b></text>
+        <text fg={theme().textMuted}>· {current().statuses[status()]}</text>
+        <text fg={colorFg()}>{current().frames[frame()]}</text>
+        <text fg={theme().textMuted}>tip: {current().tips[tip()]}</text>
+      </box>
+    )
   }
+
+  api.slots.register({
+    order: 100,
+    slots: {
+      home_bottom: renderCreature(1),
+      sidebar_content: renderCreature(0),
+    },
+  })
 }
 
 const plugin: TuiPluginModule & { id: string } = {
   id: "opencode-creature-modes",
-  tui: async (api, options, meta) => {
-    const concrete = buildTui(options)
-    await concrete(api, options, meta)
-  },
+  tui,
 }
 
 export default plugin
