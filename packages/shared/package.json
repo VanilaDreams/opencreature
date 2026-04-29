@@ -1,0 +1,15 @@
+{
+  "name": "@opencreature/shared",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "echo 'shared is internal, bundled by consumers' && exit 0",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "peerDependencies": {
+    "@opencode-ai/plugin": ">=1"
+  }
+}

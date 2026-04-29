@@ -1,0 +1,27 @@
+{
+  "name": "opencode-creature-raccoon",
+  "version": "0.1.0",
+  "description": "OpenCode plugin: raccoon mode persona",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist", "README.md"],
+  "oc-plugin": ["server"],
+  "keywords": ["opencode", "opencode-plugin", "raccoon"],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VanilaDreams/opencreature.git",
+    "directory": "packages/raccoon-mode"
+  },
+  "scripts": {
+    "build": "bun build src/index.ts --target=node --external @opencode-ai/plugin --outdir dist --format=esm && tsc --emitDeclarationOnly -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "peerDependencies": {
+    "@opencode-ai/plugin": ">=1"
+  },
+  "dependencies": {
+    "@opencreature/shared": "workspace:*"
+  }
+}

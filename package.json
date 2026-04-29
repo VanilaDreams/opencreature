@@ -1,0 +1,20 @@
+{
+  "name": "opencreature-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "bun run --filter '*' build",
+    "typecheck": "bun run --filter '*' typecheck",
+    "clean": "rm -rf packages/*/dist"
+  },
+  "devDependencies": {
+    "@opencode-ai/plugin": "1.14.29",
+    "@tsconfig/node22": "22.0.2",
+    "@types/node": "22.13.9",
+    "typescript": "5.8.2"
+  }
+}
