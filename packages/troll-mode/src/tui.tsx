@@ -3,47 +3,112 @@ import { createEffect, createSignal, onCleanup } from "solid-js"
 import type { TuiPlugin, TuiPluginModule } from "@opencode-ai/plugin/tui"
 
 const FRAMES = [
-  " .----. \n( O  O )\n |  -  |\n  '--' ",
-  " .----. \n( -  - )\n |  -  |\n  '--' ",
-  " .----. \n( O  O )\n | -- |\n  '--' ",
+`       _________________
+      /                 \\
+     /     ___     ___    \\
+    |    (.O.) ' (.O.)    |
+    |       \\_____/       |
+    |       |  W  |       |
+     \\      '-----'      /
+      \\_________________/
+       /||\\         /||\\
+      / || \\       / || \\
+     /__||__\\     /__||__\\
+        ||             ||
+       /||\\           /||\\`,
+
+`       _________________
+      /                 \\
+     /     ___     ___    \\
+    |    (-O-) ' (-O-)    |
+    |       \\_____/       |
+    |       |  O  |       |
+     \\      '-----'      /
+      \\_________________/
+       /||\\         /||\\
+      / || \\       / || \\
+     /__||__\\     /__||__\\
+        ||             ||
+       /||\\           /||\\`,
+
+`       _________________
+      /                 \\
+     /     ___     ___    \\
+    |    (*O*) ' (*O*)    |
+    |       \\_____/       |
+    |       | --- |       |
+     \\      '-----'      /
+      \\_________________/
+       /||\\         /||\\
+      / || \\       / || \\
+     /__||__\\     /__||__\\
+         ||           ||
+        /||\\         /||\\`,
+]
+
+const STATUSES = [
+  "troll under the bridge watching",
+  "smashing rocks in code",
+  "eyeing your refactor",
+  "guarding the main branch",
+  "grumpy about the build time",
+]
+
+const TIPS = [
+  "code work or code not work. no in between",
+  "if test fail, smash test until pass. wait. that bad. fix code instead",
+  "abstraction is rock with extra steps",
+  "delete more code than you write today",
+  "tabs vs spaces. troll use whatever editor pick",
+  "premature optimization is rock you trip on",
+  "READ error message. all of it. yes the long part too",
 ]
 
 const FRAME_MS = 400
+const STATUS_MS = 3500
+const TIP_MS = 12000
+
+function rand<T>(arr: T[]): number {
+  return Math.floor(Math.random() * arr.length)
+}
 
 const tui: TuiPlugin = async (api) => {
   if (process.env.OPENCREATURE_OFF) return
 
+  const renderCreature = (paddingX: number) => () => {
+    const [frame, setFrame] = createSignal(0)
+    const [status, setStatus] = createSignal(0)
+    const [tip, setTip] = createSignal(rand(TIPS))
+    const theme = () => api.theme.current
+
+    createEffect(() => {
+      const id = setInterval(() => setFrame((f) => (f + 1) % FRAMES.length), FRAME_MS)
+      onCleanup(() => clearInterval(id))
+    })
+    createEffect(() => {
+      const id = setInterval(() => setStatus((s) => (s + 1) % STATUSES.length), STATUS_MS)
+      onCleanup(() => clearInterval(id))
+    })
+    createEffect(() => {
+      const id = setInterval(() => setTip((t) => (t + 1) % TIPS.length), TIP_MS)
+      onCleanup(() => clearInterval(id))
+    })
+
+    return (
+      <box flexDirection="column" marginTop={1} paddingX={paddingX}>
+        <text fg={theme().success}><b>🧌 troll mode</b></text>
+        <text fg={theme().textMuted}>· {STATUSES[status()]}</text>
+        <text fg={theme().success}>{FRAMES[frame()]}</text>
+        <text fg={theme().textMuted}>tip: {TIPS[tip()]}</text>
+      </box>
+    )
+  }
+
   api.slots.register({
     order: 100,
     slots: {
-      home_bottom() {
-        const [frame, setFrame] = createSignal(0)
-        const theme = () => api.theme.current
-        createEffect(() => {
-          const id = setInterval(() => setFrame((f) => (f + 1) % FRAMES.length), FRAME_MS)
-          onCleanup(() => clearInterval(id))
-        })
-        return (
-          <box flexDirection="column" marginTop={1} paddingX={1}>
-            <text fg={theme().success}><b>🧌 troll mode</b></text>
-            <text fg={theme().textMuted}>{FRAMES[frame()]}</text>
-          </box>
-        )
-      },
-      sidebar_content() {
-        const [frame, setFrame] = createSignal(0)
-        const theme = () => api.theme.current
-        createEffect(() => {
-          const id = setInterval(() => setFrame((f) => (f + 1) % FRAMES.length), FRAME_MS)
-          onCleanup(() => clearInterval(id))
-        })
-        return (
-          <box flexDirection="column" marginTop={1}>
-            <text fg={theme().success}><b>🧌 troll mode</b></text>
-            <text fg={theme().textMuted}>{FRAMES[frame()]}</text>
-          </box>
-        )
-      },
+      home_bottom: renderCreature(1),
+      sidebar_content: renderCreature(0),
     },
   })
 }
