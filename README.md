@@ -65,15 +65,29 @@ Local test: point your `~/.config/opencode/opencode.json` at a built plugin's ab
 { "plugin": ["/absolute/path/to/opencreature/packages/raccoon-mode"] }
 ```
 
-## Honest scope
+## What each plugin does
 
-What plugins actually do, given the real OpenCode plugin API:
-
+Server side (always on):
 1. Inject persona prompt via `experimental.chat.system.transform` so the model speaks as the creature.
-2. Register a custom tool (`raccoon_chitter` etc.) that returns ASCII art the model can drop into chat.
-3. Combined plugin reads its `mode` option from `opencode.json`.
+2. Register a custom tool (`raccoon_chitter` etc.) that returns ASCII art.
+3. Add a rotating tip per turn.
 
-Out of scope: animated chat banners, sidebar widgets, replacing the chat input. The OpenCode TUI is now SolidJS + opentui — TUI plugin extension exists but is not built here. The standalone `opencreature` CLI covers the animated-ASCII vibe in a side terminal.
+TUI side (animated):
+4. Fill `home_bottom` and `sidebar_content` slots with an animated SolidJS component — eyes blink, mouths move, frames cycle every 400ms.
+
+Combined plugin reads `mode` from plugin options to pick the active creature; `mode: "all"` rotates per-session (server) and across creatures every 6s (TUI).
+
+## Recommended install path
+
+```bash
+opencode plugin opencode-creature-raccoon
+```
+
+This populates both `opencode.json` (server) and `tui.json` (TUI) automatically based on the plugin's `oc-plugin: ["server", "tui"]` declaration.
+
+## Implementation notes
+
+The TUI plugin source is `.tsx` with `/** @jsxImportSource @opentui/solid */`. We pre-compile it to `.js` via `babel-preset-solid` (`scripts/build-tui.mjs`) so it imports concrete helpers from `@opentui/solid` directly. Without this step, OpenCode 1.14.29 fails to load TUI plugins because `@opentui/solid@0.2.0` exports `./jsx-runtime` to a `.d.ts` (declarations only). This pre-compilation step bypasses that bug.
 
 ## License
 

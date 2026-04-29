@@ -12,9 +12,15 @@
     "clean": "rm -rf packages/*/dist"
   },
   "devDependencies": {
+    "@babel/core": "7.29.0",
+    "@babel/preset-typescript": "7.28.5",
     "@opencode-ai/plugin": "1.14.29",
+    "@opentui/core": "0.2.0",
+    "@opentui/solid": "0.2.0",
     "@tsconfig/node22": "22.0.2",
     "@types/node": "22.13.9",
+    "babel-preset-solid": "1.9.12",
+    "solid-js": "1.9.3",
     "typescript": "5.8.2"
   }
 }

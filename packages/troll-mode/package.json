@@ -5,8 +5,12 @@
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./tui": "./dist/tui.js"
+  },
   "files": ["dist", "README.md"],
-  "oc-plugin": ["server"],
+  "oc-plugin": ["server", "tui"],
   "keywords": ["opencode", "opencode-plugin", "troll"],
   "license": "MIT",
   "repository": {
@@ -15,11 +19,13 @@
     "directory": "packages/troll-mode"
   },
   "scripts": {
-    "build": "bun build src/index.ts --target=node --external @opencode-ai/plugin --outdir dist --format=esm && tsc --emitDeclarationOnly -p tsconfig.json",
+    "build": "bun build src/index.ts --target=node --external @opencode-ai/plugin --outdir dist --format=esm && tsc --emitDeclarationOnly -p tsconfig.json && node ../../scripts/build-tui.mjs src/tui.tsx dist/tui.js",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "peerDependencies": {
-    "@opencode-ai/plugin": ">=1"
+    "@opencode-ai/plugin": ">=1",
+    "@opentui/solid": ">=0.1",
+    "solid-js": ">=1"
   },
   "dependencies": {
     "@opencreature/shared": "workspace:*"

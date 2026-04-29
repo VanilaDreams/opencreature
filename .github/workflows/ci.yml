@@ -20,4 +20,6 @@ jobs:
         run: |
           for pkg in packages/raccoon-mode packages/troll-mode packages/ogre-mode packages/pigeon-mode packages/creature-modes; do
             grep -q '"oc-plugin"' "$pkg/package.json" || { echo "missing oc-plugin field in $pkg"; exit 1; }
+            test -f "$pkg/dist/index.js" || { echo "missing dist/index.js in $pkg"; exit 1; }
+            test -f "$pkg/dist/tui.js" || { echo "missing dist/tui.js in $pkg"; exit 1; }
           done

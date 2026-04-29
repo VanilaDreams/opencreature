@@ -1,0 +1,56 @@
+/** @jsxImportSource @opentui/solid */
+import { createEffect, createSignal, onCleanup } from "solid-js"
+import type { TuiPlugin, TuiPluginModule } from "@opencode-ai/plugin/tui"
+
+const FRAMES = [
+  " .----. \n/o    o\\\n| /\\/\\ |\n \\____/ ",
+  " .----. \n/o    o\\\n|VVVVVV|\n \\____/ ",
+  " .----. \n/-    -\\\n| /\\/\\ |\n \\____/ ",
+]
+
+const FRAME_MS = 400
+
+const tui: TuiPlugin = async (api) => {
+  if (process.env.OPENCREATURE_OFF) return
+
+  api.slots.register({
+    order: 100,
+    slots: {
+      home_bottom() {
+        const [frame, setFrame] = createSignal(0)
+        const theme = () => api.theme.current
+        createEffect(() => {
+          const id = setInterval(() => setFrame((f) => (f + 1) % FRAMES.length), FRAME_MS)
+          onCleanup(() => clearInterval(id))
+        })
+        return (
+          <box flexDirection="column" marginTop={1} paddingX={1}>
+            <text fg={theme().warning}><b>👹 ogre mode</b></text>
+            <text fg={theme().textMuted}>{FRAMES[frame()]}</text>
+          </box>
+        )
+      },
+      sidebar_content() {
+        const [frame, setFrame] = createSignal(0)
+        const theme = () => api.theme.current
+        createEffect(() => {
+          const id = setInterval(() => setFrame((f) => (f + 1) % FRAMES.length), FRAME_MS)
+          onCleanup(() => clearInterval(id))
+        })
+        return (
+          <box flexDirection="column" marginTop={1}>
+            <text fg={theme().warning}><b>👹 ogre mode</b></text>
+            <text fg={theme().textMuted}>{FRAMES[frame()]}</text>
+          </box>
+        )
+      },
+    },
+  })
+}
+
+const plugin: TuiPluginModule & { id: string } = {
+  id: "opencode-creature-ogre",
+  tui,
+}
+
+export default plugin
