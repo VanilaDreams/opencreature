@@ -1,59 +1,105 @@
 /** @jsxImportSource @opentui/solid */
-import { createEffect, createMemo, createSignal, onCleanup } from "solid-js"
+import { createEffect, createMemo, createSignal, onCleanup, For } from "solid-js"
 import type { TuiPlugin, TuiPluginModule } from "@opencode-ai/plugin/tui"
 import type { PluginOptions } from "@opencode-ai/plugin"
 
 type Mode = "raccoon" | "troll" | "ogre" | "pigeon" | "all"
 
+type Palette = Record<string, string>
+
 type CreatureSpec = {
   label: string
-  fg: string
+  defaultFg: string
+  palette: Palette
   frames: string[]
   statuses: string[]
   tips: string[]
+  attribution: string
+}
+
+// Color markers using ASCII control chars that never appear in ASCII art.
+// \x01 = start of colored span, followed by single-char tag, then content,
+// terminated by \x02. Plain text outside markers uses defaultFg.
+const C_START = "\x01"
+const C_END = "\x02"
+function tag(name: string) {
+  return (s: string) => C_START + name + s + C_END
+}
+const e = tag("e") // eye
+const m = tag("m") // mask / hair / dark accent
+const n = tag("n") // nose / mouth / pop
+const t = tag("t") // tail / feet / secondary
+
+type Seg = { text: string; fg: string }
+
+function parseSegments(line: string, palette: Palette, defaultFg: string): Seg[] {
+  const out: Seg[] = []
+  let buf = ""
+  let fg = defaultFg
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i]
+    if (c === C_START) {
+      if (buf) out.push({ text: buf, fg })
+      buf = ""
+      const tagName = line[i + 1]!
+      fg = palette[tagName] ?? defaultFg
+      i++
+    } else if (c === C_END) {
+      if (buf) out.push({ text: buf, fg })
+      buf = ""
+      fg = defaultFg
+    } else {
+      buf += c
+    }
+  }
+  if (buf) out.push({ text: buf, fg })
+  return out
 }
 
 const CREATURES: Record<Exclude<Mode, "all">, CreatureSpec> = {
   raccoon: {
     label: "raccoon mode",
-    fg: "#f59e0b",
+    defaultFg: "#c4a484",
+    palette: {
+      e: "#fbbf24",
+      m: "#1f2937",
+      n: "#ef4444",
+      t: "#78716c",
+    },
+    attribution: "art: jgs (Joan Stark, 1997)",
     frames: [
-`      /\\         /\\
-     /  \\_______/  \\
-    /               \\
-    |  ===     ===  |
-    |  =o=     =o=  |
-    |  ===     ===  |
-    |       v       |
-    |      '-'      |
-     \\             /
-      \\___________/
-        /|     |\\
-       __|     |__`,
-`      /\\         /\\
-     /  \\_______/  \\
-    /               \\
-    |  ===     ===  |
-    |  =-=     =-=  |
-    |  ===     ===  |
-    |       v       |
-    |      '-'      |
-     \\             /
-      \\___________/
-        /|     |\\
-       __|     |__`,
-`      /\\         /\\
-     /  \\_______/  \\
-    /               \\
-    |  ===     ===  |
-    |  =O=     =O=  |
-    |  ===     ===  |
-    |       v       |
-    |      \\_/      |
-     \\             /
-      \\___________/
-        /|     |\\
-       __|     |__`,
+      `                   __        .-.
+               .-"\` .\`'.    /\\|
+       _(${m("\\-/")})_" ,  .   ,\\  /\\\\\\/
+      {(#b${e("^")}d#)} .   ./,  |/\\\\\\/
+      \`-.${n("(Y)")}.-\`  ,  |  , |\\.-\`
+           /~/,_/~~~\\,__.-\`
+          ////~    // ~\\\\
+  jgs   ==${t("\`")}==${t("\`")}   ==${t("\`")}   ==${t("\`")}`,
+      `                   __        .-.
+               .-"\` .\`'.    /\\|
+       _(${m("\\-/")})_" ,  .   ,\\  /\\\\\\/
+      {(#b${e("_")}d#)} .   ./,  |/\\\\\\/
+      \`-.${n("(Y)")}.-\`  ,  |  , |\\.-\`
+           /~/,_/~~~\\,__.-\`
+          ////~    // ~\\\\
+  jgs   ==${t("\`")}==${t("\`")}   ==${t("\`")}   ==${t("\`")}`,
+      `                   __        .-.
+               .-"\` .\`'.    /\\|
+       _(${m("\\-/")})_" ,  .   ,\\  /\\\\\\/
+      {(#b${e("o")}d#)} .   ./,  |/\\\\\\/
+      \`-.${n("(o)")}.-\`  ,  |  , |\\.-\`
+           /~/,_/~~~\\,__.-\`
+          ////~    // ~\\\\
+  jgs   ==${t("\`")}==${t("\`")}   ==${t("\`")}   ==${t("\`")}`,
+      `                   __        .-.
+               .-"\` .\`'.    /\\|
+       _(${m("\\-/")})_" ,  .   ,\\  /\\\\\\/
+      {(#b${e("*")}d#)} .   ./,  |/\\\\\\/
+      \`-.${n("(Y)")}.-\`  ,  |  , |\\.-\`
+           /~/,_/~~~\\,__.-\`
+          ////~    // ~\\\\
+  jgs   ==${t("\`")}==${t("\`")}   ==${t("\`")}   ==${t("\`")}`,
     ],
     statuses: [
       "raccoons raiding the cache",
@@ -74,38 +120,87 @@ const CREATURES: Record<Exclude<Mode, "all">, CreatureSpec> = {
   },
   troll: {
     label: "troll mode",
-    fg: "#4ade80",
+    defaultFg: "#65a30d",
+    palette: {
+      e: "#f97316",
+      m: "#1c1917",
+      n: "#dc2626",
+      t: "#3f3f46",
+    },
+    attribution: "art: VK (Veronica Karlsson)",
     frames: [
-`      /|  /|
-     J(|_J(|
-    /     _ \`_
-   J     '_ ' \\
-   F     (.) (.)--._
-  /                 \`.
- J                   |
- F       ._         .'
-J          \`-.____.'
-F           \\`,
-`      /|  /|
-     J(|_J(|
-    /     _ \`_
-   J     '_ ' \\
-   F     (-) (-)--._
-  /                 \`.
- J                   |
- F       ._         .'
-J          \`-.____.'
-F           \\`,
-`      /|  /|
-     J(|_J(|
-    /     _ \`_
-   J     '_ ' \\
-   F     (o) (o)--._
-  /                 \`.
- J                   |
- F       o_         .'
-J          \`-.____.'
-F           \\`,
+      `      -. -. \`.  / .-' _.'  _
+     .--\`. \`. \`| / __.-- _' \`
+    '.-.  \\  \\ |  /   _.' \`_
+    .-. \\  \`  || |  .' _.-' \`.
+  .' _ \\ '  -    -'  - \` _.-.
+   .' \`. ${m("%%%%%")}   | ${m("%%%%%")} _.-.\`-
+ .' .-. ><${e("(@)")}> ) ( <${e("(@)")}>< .-.\`.
+   (("\`(   ${n("-")}   | |   ${n("-")}   )'"))
+  / \\\\#)\\    (.(_).)    /(#//\\
+ ' / ) ((  /   | |   \\  )) (\`.\`.
+ .'  (.) \\ .md88o88bm. / (.) \\)
+   / /| / \\ \`Y88888Y' / \\ | \\ \\
+ .' / O  / \`.   -   .' \\  O \\ \\\\
+  / /(O)/ /| \`.___.' | \\\\(O) \\
+   / / / / |  |   |  |\\  \\  \\ \\
+   / / // /|  |   |  |  \\  \\ \\  VK
+ _.--/--/'( ) ) ( ) ) )\`\\-\\-\\-._
+( ( ( ) ( ) ) ( ) ) ( ) ) ) ( ) )`,
+      `      -. -. \`.  / .-' _.'  _
+     .--\`. \`. \`| / __.-- _' \`
+    '.-.  \\  \\ |  /   _.' \`_
+    .-. \\  \`  || |  .' _.-' \`.
+  .' _ \\ '  -    -'  - \` _.-.
+   .' \`. ${m("%%%%%")}   | ${m("%%%%%")} _.-.\`-
+ .' .-. ><${e("(-)")}> ) ( <${e("(-)")}>< .-.\`.
+   (("\`(   ${n("-")}   | |   ${n("-")}   )'"))
+  / \\\\#)\\    (.(_).)    /(#//\\
+ ' / ) ((  /   | |   \\  )) (\`.\`.
+ .'  (.) \\ .md88o88bm. / (.) \\)
+   / /| / \\ \`Y88888Y' / \\ | \\ \\
+ .' / O  / \`.   -   .' \\  O \\ \\\\
+  / /(O)/ /| \`.___.' | \\\\(O) \\
+   / / / / |  |   |  |\\  \\  \\ \\
+   / / // /|  |   |  |  \\  \\ \\  VK
+ _.--/--/'( ) ) ( ) ) )\`\\-\\-\\-._
+( ( ( ) ( ) ) ( ) ) ( ) ) ) ( ) )`,
+      `      -. -. \`.  / .-' _.'  _
+     .--\`. \`. \`| / __.-- _' \`
+    '.-.  \\  \\ |  /   _.' \`_
+    .-. \\  \`  || |  .' _.-' \`.
+  .' _ \\ '  -    -'  - \` _.-.
+   .' \`. ${m("VVVVV")}   | ${m("VVVVV")} _.-.\`-
+ .' .-. ><${e("(O)")}> ) ( <${e("(O)")}>< .-.\`.
+   (("\`(   ${n("o")}   | |   ${n("o")}   )'"))
+  / \\\\#)\\    (.(_).)    /(#//\\
+ ' / ) ((  /   | |   \\  )) (\`.\`.
+ .'  (.) \\ .md88o88bm. / (.) \\)
+   / /| / \\ \`Y88888Y' / \\ | \\ \\
+ .' / O  / \`.   -   .' \\  O \\ \\\\
+  / /(O)/ /| \`.___.' | \\\\(O) \\
+   / / / / |  |   |  |\\  \\  \\ \\
+   / / // /|  |   |  |  \\  \\ \\  VK
+ _.--/--/'( ) ) ( ) ) )\`\\-\\-\\-._
+( ( ( ) ( ) ) ( ) ) ( ) ) ) ( ) )`,
+      `      -. -. \`.  / .-' _.'  _
+     .--\`. \`. \`| / __.-- _' \`
+    '.-.  \\  \\ |  /   _.' \`_
+    .-. \\  \`  || |  .' _.-' \`.
+  .' _ \\ '  -    -'  - \` _.-.
+   .' \`. ${m("%%%%%")}   | ${m("%%%%%")} _.-.\`-
+ .' .-. ><${e("(o)")}> ) ( <${e("(o)")}>< .-.\`.
+   (("\`(   ${n("v")}   | |   ${n("v")}   )'"))
+  / \\\\#)\\    (.(_).)    /(#//\\
+ ' / ) ((  /   | |   \\  )) (\`.\`.
+ .'  (.) \\ .md88o88bm. / (.) \\)
+   / /| / \\ \`Y88888Y' / \\ | \\ \\
+ .' / O  / \`.   -   .' \\  O \\ \\\\
+  / /(O)/ /| \`.___.' | \\\\(O) \\
+   / / / / |  |   |  |\\  \\  \\ \\
+   / / // /|  |   |  |  \\  \\ \\  VK
+ _.--/--/'( ) ) ( ) ) )\`\\-\\-\\-._
+( ( ( ) ( ) ) ( ) ) ( ) ) ) ( ) )`,
     ],
     statuses: [
       "troll under the bridge watching",
@@ -126,44 +221,87 @@ F           \\`,
   },
   ogre: {
     label: "ogre mode",
-    fg: "#a3e635",
+    defaultFg: "#84cc16",
+    palette: {
+      e: "#fef3c7",
+      m: "#365314",
+      n: "#a3e635",
+      t: "#3f6212",
+    },
+    attribution: "art: snd (Shanaka Dias)",
     frames: [
-`        ____^____
-       /         \\
-      /           \\
-     |   O     O   |
-     |             |
-     |     /\\      |
-     |    /  \\     |
-     |    \\__/     |
-     |  uu     uu  |
-      \\           /
-       \\_________/
-          ~ ~ ~`,
-`        ____^____
-       /         \\
-      /           \\
-     |   -     -   |
-     |             |
-     |     /\\      |
-     |    /  \\     |
-     |    \\__/     |
-     |  uu     uu  |
-      \\           /
-       \\_________/
-          ~ ~ ~`,
-`        ____^____
-       /         \\
-      /           \\
-     |   ^     ^   |
-     |             |
-     |     /\\      |
-     |    /  \\     |
-     |    \\__/     |
-     | UUU     UUU |
-      \\           /
-       \\_________/
-          ~ ~ ~`,
+      `          c,_.--.,y
+            7 ${e("a.a")}(
+           (   ,_Y)
+           :  '---;
+       ___.'\\.  - (
+     .'"""S,._'--'_2..,_
+     |    ':::::=:::::  \\
+     .     f== ;-,---.' T
+      Y.   r,-,_/_      |
+      |:\\___.---' '---./
+      |'\`             )
+       \\             ,
+       ':;,.________.;L
+       /  '---------' |
+       |              \\
+       L---'-,--.-'--,-'
+        T    /   \\   Y
+snd     |   Y    ,   |`,
+      `          c,_.--.,y
+            7 ${e("-.-")}(
+           (   ,_Y)
+           :  '---;
+       ___.'\\.  - (
+     .'"""S,._'--'_2..,_
+     |    ':::::=:::::  \\
+     .     f== ;-,---.' T
+      Y.   r,-,_/_      |
+      |:\\___.---' '---./
+      |'\`             )
+       \\             ,
+       ':;,.________.;L
+       /  '---------' |
+       |              \\
+       L---'-,--.-'--,-'
+        T    /   \\   Y
+snd     |   Y    ,   |`,
+      `          c,_.--.,y
+            7 ${e("o.o")}(
+           (   ,_Y)
+           :  '---;
+       ___.'\\.  ${n("o")} (
+     .'"""S,._'--'_2..,_
+     |    ':::::=:::::  \\
+     .     f== ;-,---.' T
+      Y.   r,-,_/_      |
+      |:\\___.---' '---./
+      |'\`             )
+       \\             ,
+       ':;,.________.;L
+       /  '---------' |
+       |              \\
+       L---'-,--.-'--,-'
+        T    /   \\   Y
+snd     |   Y    ,   |`,
+      `          c,_.--.,y
+            7 ${e("O.O")}(
+           (   ,_Y)
+           :  '---;
+       ___.'\\.  ${n("v")} (
+     .'"""S,._'--'_2..,_
+     |    ':::::=:::::  \\
+     .     f== ;-,---.' T
+      Y.   r,-,_/_      |
+      |:\\___.---' '---./
+      |'\`             )
+       \\             ,
+       ':;,.________.;L
+       /  '---------' |
+       |              \\
+       L---'-,--.-'--,-'
+        T    /   \\   Y
+snd     |   Y    ,   |`,
     ],
     statuses: [
       "peeling onion abstractions",
@@ -184,44 +322,63 @@ F           \\`,
   },
   pigeon: {
     label: "pigeon mode",
-    fg: "#67e8f9",
+    defaultFg: "#67e8f9",
+    palette: {
+      e: "#fef08a",
+      m: "#52525b",
+      n: "#fb923c",
+      t: "#475569",
+    },
+    attribution: "art: jgs (Joan Stark, 1997)",
     frames: [
-`       ___________
-      /           \\
-     |  o       o  |
-     |     /\\      |
-     |     \\/      |
-      \\           /
-       \\_________/
-          |   |
-         /     \\
-        /       \\
-       |_________|
-        ||     ||`,
-`       ___________
-      /           \\
-     |  -       -  |
-     |     /\\      |
-     |     \\/      |
-      \\           /
-       \\_________/
-          |   |
-         /     \\
-        /       \\
-       |_________|
-        ||     ||`,
-`       ___________
-      /           \\
-     |  O       O  |
-     |     /v\\     |
-     |     \\^/     |
-      \\           /
-       \\_________/
-          |   |
-         /     \\
-        /       \\
-       |_________|
-        ||     ||`,
+      `                          .---.
+                         /  ${e("(o")} \\_
+                         | ${n("-=")}'.'"\`
+                         )   (
+                     _.=\`     \\
+                 _.=\`.   -.    |
+            .===:._ ' '.   ;   |
+ ________,.='\`^~""\`\`"====-'   ,'
+'-========-""'"-=..,,,_____,.'
+                      \`\\ \`\\
+        jgs          ${t(",-'==,\\")}
+                          ${t(",-\`==;")}`,
+      `                          .---.
+                         /  ${e("(-")} \\_
+                         | ${n("-=")}'.'"\`
+                         )   (
+                     _.=\`     \\
+                 _.=\`.   -.    |
+            .===:._ ' '.   ;   |
+ ________,.='\`^~""\`\`"====-'   ,'
+'-========-""'"-=..,,,_____,.'
+                      \`\\ \`\\
+        jgs          ${t(",-'==,\\")}
+                          ${t(",-\`==;")}`,
+      `                          .---.
+                         /  ${e("(O")} \\_
+                         | ${n("-o")}'.'"\`
+                         )   (
+                     _.=\`     \\
+                 _.=\`.   -.    |
+            .===:._ ' '.   ;   |
+ ________,.='\`^~""\`\`"====-'   ,'
+'-========-""'"-=..,,,_____,.'
+                      \`\\ \`\\
+        jgs          ${t(",-'==,\\")}
+                          ${t(",-\`==;")}`,
+      `                          .---.
+                         /  ${e("(o")} \\_
+                         | ${n("-=")}'.'"\`
+                         )   (
+                     _.=\`     \\
+                 _.=\`.   -.    |
+            .===:._ ' '.   ;   |
+ ________,.='\`^~""\`\`"====-'   ,'
+'-========-""'"-=..,,,_____,.'
+                      \`\\ \`\\
+        jgs          ${t(",-'==,\\")}
+                          ${t(",-\`==;")}`,
     ],
     statuses: [
       "scanning ledges for crumbs",
@@ -243,10 +400,10 @@ F           \\`,
 }
 
 const KEYS = Object.keys(CREATURES) as (keyof typeof CREATURES)[]
-const FRAME_MS = 400
+const FRAME_MS = 350
 const STATUS_MS = 3500
 const TIP_MS = 12000
-const ROTATE_MS = 9000
+const ROTATE_MS = 11000
 
 function rand<T>(arr: T[]): number {
   return Math.floor(Math.random() * arr.length)
@@ -300,11 +457,22 @@ const tui: TuiPlugin = async (api, options) => {
       onCleanup(() => clearInterval(id))
     })
 
+    const lines = createMemo(() => current().frames[frame()]!.split("\n"))
+
     return (
       <box flexDirection="column" marginTop={1} paddingX={paddingX}>
-        <text fg={current().fg}><b>{current().label}</b></text>
+        <text fg={current().defaultFg}><b>{current().label}</b></text>
         <text fg={theme().textMuted}>· {current().statuses[status()]}</text>
-        <text fg={current().fg}>{current().frames[frame()]}</text>
+        <For each={lines()}>
+          {(line) => (
+            <text>
+              <For each={parseSegments(line, current().palette, current().defaultFg)}>
+                {(s) => <span {...({ fg: s.fg } as any)}>{s.text}</span>}
+              </For>
+            </text>
+          )}
+        </For>
+        <text fg={theme().textMuted}>{current().attribution}</text>
         <text fg={theme().textMuted}>tip: {current().tips[tip()]}</text>
       </box>
     )
