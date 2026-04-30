@@ -46,22 +46,34 @@ export function buildCombinedPlugin(): Plugin {
         raccoon_chitter: tool({
           description: "Display the raccoon ASCII portrait.",
           args: {},
-          async execute() { return ascii.raccoon },
+          async execute(_args, ctx) {
+            ctx.metadata({ title: "raccoon portrait" })
+            return ascii.raccoon
+          },
         }),
         troll_grumble: tool({
           description: "Display the troll ASCII portrait.",
           args: {},
-          async execute() { return ascii.troll },
+          async execute(_args, ctx) {
+            ctx.metadata({ title: "troll portrait" })
+            return ascii.troll
+          },
         }),
         ogre_roar: tool({
           description: "Display the ogre ASCII portrait.",
           args: {},
-          async execute() { return ascii.ogre },
+          async execute(_args, ctx) {
+            ctx.metadata({ title: "ogre portrait" })
+            return ascii.ogre
+          },
         }),
         pigeon_coo: tool({
           description: "Display the pigeon ASCII portrait.",
           args: {},
-          async execute() { return ascii.pigeon },
+          async execute(_args, ctx) {
+            ctx.metadata({ title: "pigeon portrait" })
+            return ascii.pigeon
+          },
         }),
       },
     }

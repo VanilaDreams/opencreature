@@ -38,7 +38,8 @@ export function buildCreaturePlugin(key: CreatureKey): Plugin {
         [toolNames[key]]: tool({
           description: toolDescriptions[key],
           args: {},
-          async execute() {
+          async execute(_args, ctx) {
+            ctx.metadata({ title: `${key} portrait` })
             return ascii[key]
           },
         }),
