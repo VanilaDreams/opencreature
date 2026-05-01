@@ -6,46 +6,40 @@ import type { PluginOptions } from "@opencode-ai/plugin"
 type Mode = "raccoon" | "troll" | "ogre" | "pigeon" | "all"
 
 type CreatureSpec = {
-  name: string
   title: string
   tagline: string
   fg: string
-  miniArt: string
-  fullArt: string
-  attribution: string
-  thinkingTop: string
-  thinkingBottom: string
-  tipLabel: string
+  frames: string[]
   statuses: string[]
+  tipLabel: string
   tips: string[]
 }
 
 const DOTS = ".".repeat(56)
+const FRAME_MS = 600
+const STATUS_MS = 4000
+const TIP_MS = 12000
+const ROTATE_MS = 11000
 
 const CREATURES: Record<Exclude<Mode, "all">, CreatureSpec> = {
   raccoon: {
-    name: "raccoon",
     title: "RACCOON MODE",
     tagline: "shiny trash welcome",
-    fg: "#fbbf24",
-    miniArt:
+    fg: "#a3e635",
+    frames: [
 ` _,_,_
 <=o.o=>
  /|_|\\
-  \\-/`,
-    fullArt:
-`                   __        .-.
-               .-"\` .\`'.    /\\|
-       _(\\-/)_" ,  .   ,\\  /\\\\\\/
-      {(#b^d#)} .   ./,  |/\\\\\\/
-      \`-.(Y).-\`  ,  |  , |\\.-\`
-           /~/,_/~~~\\,__.-\`
-          ////~    // ~\\\\
-  jgs   ==\`==\`   ==\`   ==\``,
-    attribution: "art: jgs",
-    thinkingTop: "raccoon is thinking",
-    thinkingBottom: "eyes on the cache",
-    tipLabel: "Raccoon Tip",
+  \\ /`,
+` _,_,_
+<=-.-=>
+ /|_|\\
+  \\ /`,
+` _,_,_
+<=o.o=>
+ /|_|\\
+  \\_/`,
+    ],
     statuses: [
       "raccoons in the cache · gremlins in the gears",
       "rummaging through node_modules",
@@ -53,6 +47,7 @@ const CREATURES: Record<Exclude<Mode, "all">, CreatureSpec> = {
       "washing the diff",
       "scouting the dumpster fire",
     ],
+    tipLabel: "Raccoon Tip",
     tips: [
       "always wash your data before consuming it",
       "the best bugs are found at 3am behind the dumpster",
@@ -64,38 +59,23 @@ const CREATURES: Record<Exclude<Mode, "all">, CreatureSpec> = {
     ],
   },
   troll: {
-    name: "troll",
     title: "TROLL MODE",
     tagline: "rocks ahead",
     fg: "#84cc16",
-    miniArt:
+    frames: [
 `\\\\,//
 <O.O>
 /|_|\\
  | |`,
-    fullArt:
-`      -. -. \`.  / .-' _.'  _
-     .--\`. \`. \`| / __.-- _' \`
-    '.-.  \\  \\ |  /   _.' \`_
-    .-. \\  \`  || |  .' _.-' \`.
-  .' _ \\ '  -    -'  - \` _.-.
-   .' \`. %%%%%   | %%%%% _.-.\`-
- .' .-. ><(@)> ) ( <(@)>< .-.\`.
-   (("\`(   -   | |   -   )'"))
-  / \\\\#)\\    (.(_).)    /(#//\\
- ' / ) ((  /   | |   \\  )) (\`.\`.
- .'  (.) \\ .md88o88bm. / (.) \\)
-   / /| / \\ \`Y88888Y' / \\ | \\ \\
- .' / O  / \`.   -   .' \\  O \\ \\\\
-  / /(O)/ /| \`.___.' | \\\\(O) \\
-   / / / / |  |   |  |\\  \\  \\ \\
-   / / // /|  |   |  |  \\  \\ \\  VK
- _.--/--/'( ) ) ( ) ) )\`\\-\\-\\-._
-( ( ( ) ( ) ) ( ) ) ( ) ) ) ( ) )`,
-    attribution: "art: VK",
-    thinkingTop: "troll is thinking",
-    thinkingBottom: "eyes on the bridge",
-    tipLabel: "Troll Tip",
+`\\\\,//
+<-.->
+/|_|\\
+ | |`,
+`\\\\,//
+<O.O>
+/|_|\\
+ |_|`,
+    ],
     statuses: [
       "troll under the bridge · rocks in the cache",
       "smashing rocks in code",
@@ -103,6 +83,7 @@ const CREATURES: Record<Exclude<Mode, "all">, CreatureSpec> = {
       "guarding the main branch",
       "grumpy about the build time",
     ],
+    tipLabel: "Troll Tip",
     tips: [
       "code work or code not work. no in between",
       "if test fail, smash test until pass. wait. that bad. fix code instead",
@@ -114,38 +95,23 @@ const CREATURES: Record<Exclude<Mode, "all">, CreatureSpec> = {
     ],
   },
   ogre: {
-    name: "ogre",
     title: "OGRE MODE",
     tagline: "swamp's open",
-    fg: "#a3e635",
-    miniArt:
+    fg: "#65a30d",
+    frames: [
 ` .---.
 (O.O.O)
   /|\\
   / \\`,
-    fullArt:
-`          c,_.--.,y
-            7 a.a(
-           (   ,_Y)
-           :  '---;
-       ___.'\\.  - (
-     .'"""S,._'--'_2..,_
-     |    ':::::=:::::  \\
-     .     f== ;-,---.' T
-      Y.   r,-,_/_      |
-      |:\\___.---' '---./
-      |'\`             )
-       \\             ,
-       ':;,.________.;L
-       /  '---------' |
-       |              \\
-       L---'-,--.-'--,-'
-        T    /   \\   Y
-snd     |   Y    ,   |`,
-    attribution: "art: snd",
-    thinkingTop: "ogre is thinking",
-    thinkingBottom: "eyes on the layers",
-    tipLabel: "Ogre Tip",
+` .---.
+(-.-.-)
+  /|\\
+  / \\`,
+` .---.
+(O.O.O)
+  /|\\
+  \\ /`,
+    ],
     statuses: [
       "ogres in the swamp · onions in the diff",
       "swamp gas detected",
@@ -153,6 +119,7 @@ snd     |   Y    ,   |`,
       "layered like always",
       "fresh swamp water flowing",
     ],
+    tipLabel: "Ogre Tip",
     tips: [
       "code is like onions. layers. you peel and you cry",
       "fresh swamp water is better than stale swamp water",
@@ -164,32 +131,23 @@ snd     |   Y    ,   |`,
     ],
   },
   pigeon: {
-    name: "pigeon",
     title: "PIGEON MODE",
     tagline: "crumbs welcome",
     fg: "#22d3ee",
-    miniArt:
-`  _,
- (o<
-  ))
-  \\\\`,
-    fullArt:
-`                          .---.
-                         /  (o \\_
-                         | -='.'"\`
-                         )   (
-                     _.=\`     \\
-                 _.=\`.   -.    |
-            .===:._ ' '.   ;   |
- ________,.='\`^~""\`\`"====-'   ,'
-'-========-""'"-=..,,,_____,.'
-                      \`\\ \`\\
-        jgs          ,-'==,\\
-                          ,-\`==;`,
-    attribution: "art: jgs",
-    thinkingTop: "pigeon is thinking",
-    thinkingBottom: "eyes on the ledge",
-    tipLabel: "Pigeon Tip",
+    frames: [
+` ,_,
+(o.o)
+ /v\\
+ | |`,
+` ,_,
+(-.-)
+ /v\\
+ | |`,
+` ,_,
+(o.o)
+ /v\\
+ |_|`,
+    ],
     statuses: [
       "pigeons on the ledge · crumbs in the queue",
       "spotting bugs from above",
@@ -197,6 +155,7 @@ snd     |   Y    ,   |`,
       "suspicious of the new framework",
       "remembered something tangential",
     ],
+    tipLabel: "Pigeon Tip",
     tips: [
       "crumb on line 47, wait what was the question",
       "every endpoint is a feeding station. some give bread. some give panic",
@@ -210,17 +169,9 @@ snd     |   Y    ,   |`,
 }
 
 const KEYS = Object.keys(CREATURES) as (keyof typeof CREATURES)[]
-const STATUS_MS = 3500
-const TIP_MS = 12000
-const ROTATE_MS = 11000
 
 function rand<T>(arr: T[]): number {
   return Math.floor(Math.random() * arr.length)
-}
-
-function pickCreature(mode: Mode, sessionSeed: number): keyof typeof CREATURES {
-  if (mode !== "all") return mode
-  return KEYS[sessionSeed % KEYS.length]!
 }
 
 const tui: TuiPlugin = async (api, options) => {
@@ -231,12 +182,20 @@ const tui: TuiPlugin = async (api, options) => {
 
   const useState = () => {
     const [creatureIndex, setCreatureIndex] = createSignal(0)
+    const [frame, setFrame] = createSignal(0)
     const [status, setStatus] = createSignal(0)
     const [tip, setTip] = createSignal(0)
     const theme = () => api.theme.current
 
     const list = mode === "all" ? KEYS : [mode as keyof typeof CREATURES]
     const current = createMemo(() => CREATURES[list[creatureIndex() % list.length]!])
+
+    createEffect(() => {
+      const id = setInterval(() => {
+        setFrame((f) => (f + 1) % current().frames.length)
+      }, FRAME_MS)
+      onCleanup(() => clearInterval(id))
+    })
 
     createEffect(() => {
       const id = setInterval(() => {
@@ -257,26 +216,27 @@ const tui: TuiPlugin = async (api, options) => {
       if (list.length <= 1) return
       const id = setInterval(() => {
         setCreatureIndex((i) => i + 1)
+        setFrame(0)
         setStatus(0)
       }, ROTATE_MS)
       onCleanup(() => clearInterval(id))
     })
 
-    return { current, status, tip, theme }
+    return { current, frame, status, tip, theme }
   }
 
   api.slots.register({
     order: 100,
     slots: {
       home_bottom: () => {
-        const { current, status, theme } = useState()
-        const miniLines = createMemo(() => current().miniArt.split("\n"))
+        const { current, frame, status, theme } = useState()
+        const lines = createMemo(() => current().frames[frame()]!.split("\n"))
         return (
-          <box flexDirection="column" alignItems="center" marginTop={1} marginBottom={1}>
+          <box flexDirection="column" alignItems="center" marginTop={2} marginBottom={1}>
             <text fg={current().fg}><b>{current().title}</b></text>
             <text fg={theme().textMuted}>{current().tagline}</text>
             <text> </text>
-            <For each={miniLines()}>
+            <For each={lines()}>
               {(line) => <text fg={current().fg}>{line}</text>}
             </For>
             <text> </text>
@@ -292,20 +252,6 @@ const tui: TuiPlugin = async (api, options) => {
           <box flexDirection="row" alignItems="center" justifyContent="center" marginTop={1}>
             <text fg={current().fg}>~ {current().tipLabel} </text>
             <text fg={theme().textMuted}>{current().tips[tip()]}</text>
-          </box>
-        )
-      },
-      sidebar_content: () => {
-        const { current } = useState()
-        const fullLines = createMemo(() => current().fullArt.split("\n"))
-        return (
-          <box flexDirection="column" marginTop={1} paddingX={1}>
-            <For each={fullLines()}>
-              {(line) => <text fg={current().fg}>{line}</text>}
-            </For>
-            <text> </text>
-            <text fg={current().fg}>{current().thinkingTop}</text>
-            <text fg={current().fg}>{current().thinkingBottom}</text>
           </box>
         )
       },
