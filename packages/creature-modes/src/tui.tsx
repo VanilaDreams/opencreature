@@ -5,104 +5,49 @@ import type { PluginOptions } from "@opencode-ai/plugin"
 
 type Mode = "raccoon" | "troll" | "ogre" | "pigeon" | "all"
 
-type Palette = Record<string, string>
-
 type CreatureSpec = {
-  label: string
-  defaultFg: string
-  palette: Palette
-  frames: string[]
+  name: string
+  title: string
+  tagline: string
+  fg: string
+  miniArt: string
+  fullArt: string
+  attribution: string
+  thinkingTop: string
+  thinkingBottom: string
+  tipLabel: string
   statuses: string[]
   tips: string[]
-  attribution: string
 }
 
-// Color markers using ASCII control chars that never appear in ASCII art.
-// \x01 = start of colored span, followed by single-char tag, then content,
-// terminated by \x02. Plain text outside markers uses defaultFg.
-const C_START = "\x01"
-const C_END = "\x02"
-function tag(name: string) {
-  return (s: string) => C_START + name + s + C_END
-}
-const e = tag("e") // eye
-const m = tag("m") // mask / hair / dark accent
-const n = tag("n") // nose / mouth / pop
-const t = tag("t") // tail / feet / secondary
-
-type Seg = { text: string; fg: string }
-
-function parseSegments(line: string, palette: Palette, defaultFg: string): Seg[] {
-  const out: Seg[] = []
-  let buf = ""
-  let fg = defaultFg
-  for (let i = 0; i < line.length; i++) {
-    const c = line[i]
-    if (c === C_START) {
-      if (buf) out.push({ text: buf, fg })
-      buf = ""
-      const tagName = line[i + 1]!
-      fg = palette[tagName] ?? defaultFg
-      i++
-    } else if (c === C_END) {
-      if (buf) out.push({ text: buf, fg })
-      buf = ""
-      fg = defaultFg
-    } else {
-      buf += c
-    }
-  }
-  if (buf) out.push({ text: buf, fg })
-  return out
-}
+const DOTS = ".".repeat(56)
 
 const CREATURES: Record<Exclude<Mode, "all">, CreatureSpec> = {
   raccoon: {
-    label: "raccoon mode",
-    defaultFg: "#c4a484",
-    palette: {
-      e: "#fbbf24",
-      m: "#1f2937",
-      n: "#ef4444",
-      t: "#78716c",
-    },
-    attribution: "art: jgs (Joan Stark, 1997)",
-    frames: [
-      `                   __        .-.
+    name: "raccoon",
+    title: "RACCOON MODE",
+    tagline: "shiny trash welcome",
+    fg: "#fbbf24",
+    miniArt:
+` _,_,_
+<=o.o=>
+ /|_|\\
+  \\-/`,
+    fullArt:
+`                   __        .-.
                .-"\` .\`'.    /\\|
-       _(${m("\\-/")})_" ,  .   ,\\  /\\\\\\/
-      {(#b${e("^")}d#)} .   ./,  |/\\\\\\/
-      \`-.${n("(Y)")}.-\`  ,  |  , |\\.-\`
+       _(\\-/)_" ,  .   ,\\  /\\\\\\/
+      {(#b^d#)} .   ./,  |/\\\\\\/
+      \`-.(Y).-\`  ,  |  , |\\.-\`
            /~/,_/~~~\\,__.-\`
           ////~    // ~\\\\
-  jgs   ==${t("\`")}==${t("\`")}   ==${t("\`")}   ==${t("\`")}`,
-      `                   __        .-.
-               .-"\` .\`'.    /\\|
-       _(${m("\\-/")})_" ,  .   ,\\  /\\\\\\/
-      {(#b${e("_")}d#)} .   ./,  |/\\\\\\/
-      \`-.${n("(Y)")}.-\`  ,  |  , |\\.-\`
-           /~/,_/~~~\\,__.-\`
-          ////~    // ~\\\\
-  jgs   ==${t("\`")}==${t("\`")}   ==${t("\`")}   ==${t("\`")}`,
-      `                   __        .-.
-               .-"\` .\`'.    /\\|
-       _(${m("\\-/")})_" ,  .   ,\\  /\\\\\\/
-      {(#b${e("o")}d#)} .   ./,  |/\\\\\\/
-      \`-.${n("(o)")}.-\`  ,  |  , |\\.-\`
-           /~/,_/~~~\\,__.-\`
-          ////~    // ~\\\\
-  jgs   ==${t("\`")}==${t("\`")}   ==${t("\`")}   ==${t("\`")}`,
-      `                   __        .-.
-               .-"\` .\`'.    /\\|
-       _(${m("\\-/")})_" ,  .   ,\\  /\\\\\\/
-      {(#b${e("*")}d#)} .   ./,  |/\\\\\\/
-      \`-.${n("(Y)")}.-\`  ,  |  , |\\.-\`
-           /~/,_/~~~\\,__.-\`
-          ////~    // ~\\\\
-  jgs   ==${t("\`")}==${t("\`")}   ==${t("\`")}   ==${t("\`")}`,
-    ],
+  jgs   ==\`==\`   ==\`   ==\``,
+    attribution: "art: jgs",
+    thinkingTop: "raccoon is thinking",
+    thinkingBottom: "eyes on the cache",
+    tipLabel: "Raccoon Tip",
     statuses: [
-      "raccoons raiding the cache",
+      "raccoons in the cache · gremlins in the gears",
       "rummaging through node_modules",
       "found a shiny commit",
       "washing the diff",
@@ -119,24 +64,24 @@ const CREATURES: Record<Exclude<Mode, "all">, CreatureSpec> = {
     ],
   },
   troll: {
-    label: "troll mode",
-    defaultFg: "#65a30d",
-    palette: {
-      e: "#f97316",
-      m: "#1c1917",
-      n: "#dc2626",
-      t: "#3f3f46",
-    },
-    attribution: "art: VK (Veronica Karlsson)",
-    frames: [
-      `      -. -. \`.  / .-' _.'  _
+    name: "troll",
+    title: "TROLL MODE",
+    tagline: "rocks ahead",
+    fg: "#84cc16",
+    miniArt:
+`\\\\,//
+<O.O>
+/|_|\\
+ | |`,
+    fullArt:
+`      -. -. \`.  / .-' _.'  _
      .--\`. \`. \`| / __.-- _' \`
     '.-.  \\  \\ |  /   _.' \`_
     .-. \\  \`  || |  .' _.-' \`.
   .' _ \\ '  -    -'  - \` _.-.
-   .' \`. ${m("%%%%%")}   | ${m("%%%%%")} _.-.\`-
- .' .-. ><${e("(@)")}> ) ( <${e("(@)")}>< .-.\`.
-   (("\`(   ${n("-")}   | |   ${n("-")}   )'"))
+   .' \`. %%%%%   | %%%%% _.-.\`-
+ .' .-. ><(@)> ) ( <(@)>< .-.\`.
+   (("\`(   -   | |   -   )'"))
   / \\\\#)\\    (.(_).)    /(#//\\
  ' / ) ((  /   | |   \\  )) (\`.\`.
  .'  (.) \\ .md88o88bm. / (.) \\)
@@ -147,63 +92,12 @@ const CREATURES: Record<Exclude<Mode, "all">, CreatureSpec> = {
    / / // /|  |   |  |  \\  \\ \\  VK
  _.--/--/'( ) ) ( ) ) )\`\\-\\-\\-._
 ( ( ( ) ( ) ) ( ) ) ( ) ) ) ( ) )`,
-      `      -. -. \`.  / .-' _.'  _
-     .--\`. \`. \`| / __.-- _' \`
-    '.-.  \\  \\ |  /   _.' \`_
-    .-. \\  \`  || |  .' _.-' \`.
-  .' _ \\ '  -    -'  - \` _.-.
-   .' \`. ${m("%%%%%")}   | ${m("%%%%%")} _.-.\`-
- .' .-. ><${e("(-)")}> ) ( <${e("(-)")}>< .-.\`.
-   (("\`(   ${n("-")}   | |   ${n("-")}   )'"))
-  / \\\\#)\\    (.(_).)    /(#//\\
- ' / ) ((  /   | |   \\  )) (\`.\`.
- .'  (.) \\ .md88o88bm. / (.) \\)
-   / /| / \\ \`Y88888Y' / \\ | \\ \\
- .' / O  / \`.   -   .' \\  O \\ \\\\
-  / /(O)/ /| \`.___.' | \\\\(O) \\
-   / / / / |  |   |  |\\  \\  \\ \\
-   / / // /|  |   |  |  \\  \\ \\  VK
- _.--/--/'( ) ) ( ) ) )\`\\-\\-\\-._
-( ( ( ) ( ) ) ( ) ) ( ) ) ) ( ) )`,
-      `      -. -. \`.  / .-' _.'  _
-     .--\`. \`. \`| / __.-- _' \`
-    '.-.  \\  \\ |  /   _.' \`_
-    .-. \\  \`  || |  .' _.-' \`.
-  .' _ \\ '  -    -'  - \` _.-.
-   .' \`. ${m("VVVVV")}   | ${m("VVVVV")} _.-.\`-
- .' .-. ><${e("(O)")}> ) ( <${e("(O)")}>< .-.\`.
-   (("\`(   ${n("o")}   | |   ${n("o")}   )'"))
-  / \\\\#)\\    (.(_).)    /(#//\\
- ' / ) ((  /   | |   \\  )) (\`.\`.
- .'  (.) \\ .md88o88bm. / (.) \\)
-   / /| / \\ \`Y88888Y' / \\ | \\ \\
- .' / O  / \`.   -   .' \\  O \\ \\\\
-  / /(O)/ /| \`.___.' | \\\\(O) \\
-   / / / / |  |   |  |\\  \\  \\ \\
-   / / // /|  |   |  |  \\  \\ \\  VK
- _.--/--/'( ) ) ( ) ) )\`\\-\\-\\-._
-( ( ( ) ( ) ) ( ) ) ( ) ) ) ( ) )`,
-      `      -. -. \`.  / .-' _.'  _
-     .--\`. \`. \`| / __.-- _' \`
-    '.-.  \\  \\ |  /   _.' \`_
-    .-. \\  \`  || |  .' _.-' \`.
-  .' _ \\ '  -    -'  - \` _.-.
-   .' \`. ${m("%%%%%")}   | ${m("%%%%%")} _.-.\`-
- .' .-. ><${e("(o)")}> ) ( <${e("(o)")}>< .-.\`.
-   (("\`(   ${n("v")}   | |   ${n("v")}   )'"))
-  / \\\\#)\\    (.(_).)    /(#//\\
- ' / ) ((  /   | |   \\  )) (\`.\`.
- .'  (.) \\ .md88o88bm. / (.) \\)
-   / /| / \\ \`Y88888Y' / \\ | \\ \\
- .' / O  / \`.   -   .' \\  O \\ \\\\
-  / /(O)/ /| \`.___.' | \\\\(O) \\
-   / / / / |  |   |  |\\  \\  \\ \\
-   / / // /|  |   |  |  \\  \\ \\  VK
- _.--/--/'( ) ) ( ) ) )\`\\-\\-\\-._
-( ( ( ) ( ) ) ( ) ) ( ) ) ) ( ) )`,
-    ],
+    attribution: "art: VK",
+    thinkingTop: "troll is thinking",
+    thinkingBottom: "eyes on the bridge",
+    tipLabel: "Troll Tip",
     statuses: [
-      "troll under the bridge watching",
+      "troll under the bridge · rocks in the cache",
       "smashing rocks in code",
       "eyeing your refactor",
       "guarding the main branch",
@@ -220,18 +114,18 @@ const CREATURES: Record<Exclude<Mode, "all">, CreatureSpec> = {
     ],
   },
   ogre: {
-    label: "ogre mode",
-    defaultFg: "#84cc16",
-    palette: {
-      e: "#fef3c7",
-      m: "#365314",
-      n: "#a3e635",
-      t: "#3f6212",
-    },
-    attribution: "art: snd (Shanaka Dias)",
-    frames: [
-      `          c,_.--.,y
-            7 ${e("a.a")}(
+    name: "ogre",
+    title: "OGRE MODE",
+    tagline: "swamp's open",
+    fg: "#a3e635",
+    miniArt:
+` .---.
+(O.O.O)
+  /|\\
+  / \\`,
+    fullArt:
+`          c,_.--.,y
+            7 a.a(
            (   ,_Y)
            :  '---;
        ___.'\\.  - (
@@ -248,63 +142,12 @@ const CREATURES: Record<Exclude<Mode, "all">, CreatureSpec> = {
        L---'-,--.-'--,-'
         T    /   \\   Y
 snd     |   Y    ,   |`,
-      `          c,_.--.,y
-            7 ${e("-.-")}(
-           (   ,_Y)
-           :  '---;
-       ___.'\\.  - (
-     .'"""S,._'--'_2..,_
-     |    ':::::=:::::  \\
-     .     f== ;-,---.' T
-      Y.   r,-,_/_      |
-      |:\\___.---' '---./
-      |'\`             )
-       \\             ,
-       ':;,.________.;L
-       /  '---------' |
-       |              \\
-       L---'-,--.-'--,-'
-        T    /   \\   Y
-snd     |   Y    ,   |`,
-      `          c,_.--.,y
-            7 ${e("o.o")}(
-           (   ,_Y)
-           :  '---;
-       ___.'\\.  ${n("o")} (
-     .'"""S,._'--'_2..,_
-     |    ':::::=:::::  \\
-     .     f== ;-,---.' T
-      Y.   r,-,_/_      |
-      |:\\___.---' '---./
-      |'\`             )
-       \\             ,
-       ':;,.________.;L
-       /  '---------' |
-       |              \\
-       L---'-,--.-'--,-'
-        T    /   \\   Y
-snd     |   Y    ,   |`,
-      `          c,_.--.,y
-            7 ${e("O.O")}(
-           (   ,_Y)
-           :  '---;
-       ___.'\\.  ${n("v")} (
-     .'"""S,._'--'_2..,_
-     |    ':::::=:::::  \\
-     .     f== ;-,---.' T
-      Y.   r,-,_/_      |
-      |:\\___.---' '---./
-      |'\`             )
-       \\             ,
-       ':;,.________.;L
-       /  '---------' |
-       |              \\
-       L---'-,--.-'--,-'
-        T    /   \\   Y
-snd     |   Y    ,   |`,
-    ],
+    attribution: "art: snd",
+    thinkingTop: "ogre is thinking",
+    thinkingBottom: "eyes on the layers",
+    tipLabel: "Ogre Tip",
     statuses: [
-      "peeling onion abstractions",
+      "ogres in the swamp · onions in the diff",
       "swamp gas detected",
       "ogres do not premature-optimize",
       "layered like always",
@@ -321,19 +164,19 @@ snd     |   Y    ,   |`,
     ],
   },
   pigeon: {
-    label: "pigeon mode",
-    defaultFg: "#67e8f9",
-    palette: {
-      e: "#fef08a",
-      m: "#52525b",
-      n: "#fb923c",
-      t: "#475569",
-    },
-    attribution: "art: jgs (Joan Stark, 1997)",
-    frames: [
-      `                          .---.
-                         /  ${e("(o")} \\_
-                         | ${n("-=")}'.'"\`
+    name: "pigeon",
+    title: "PIGEON MODE",
+    tagline: "crumbs welcome",
+    fg: "#22d3ee",
+    miniArt:
+`  _,
+ (o<
+  ))
+  \\\\`,
+    fullArt:
+`                          .---.
+                         /  (o \\_
+                         | -='.'"\`
                          )   (
                      _.=\`     \\
                  _.=\`.   -.    |
@@ -341,54 +184,21 @@ snd     |   Y    ,   |`,
  ________,.='\`^~""\`\`"====-'   ,'
 '-========-""'"-=..,,,_____,.'
                       \`\\ \`\\
-        jgs          ${t(",-'==,\\")}
-                          ${t(",-\`==;")}`,
-      `                          .---.
-                         /  ${e("(-")} \\_
-                         | ${n("-=")}'.'"\`
-                         )   (
-                     _.=\`     \\
-                 _.=\`.   -.    |
-            .===:._ ' '.   ;   |
- ________,.='\`^~""\`\`"====-'   ,'
-'-========-""'"-=..,,,_____,.'
-                      \`\\ \`\\
-        jgs          ${t(",-'==,\\")}
-                          ${t(",-\`==;")}`,
-      `                          .---.
-                         /  ${e("(O")} \\_
-                         | ${n("-o")}'.'"\`
-                         )   (
-                     _.=\`     \\
-                 _.=\`.   -.    |
-            .===:._ ' '.   ;   |
- ________,.='\`^~""\`\`"====-'   ,'
-'-========-""'"-=..,,,_____,.'
-                      \`\\ \`\\
-        jgs          ${t(",-'==,\\")}
-                          ${t(",-\`==;")}`,
-      `                          .---.
-                         /  ${e("(o")} \\_
-                         | ${n("-=")}'.'"\`
-                         )   (
-                     _.=\`     \\
-                 _.=\`.   -.    |
-            .===:._ ' '.   ;   |
- ________,.='\`^~""\`\`"====-'   ,'
-'-========-""'"-=..,,,_____,.'
-                      \`\\ \`\\
-        jgs          ${t(",-'==,\\")}
-                          ${t(",-\`==;")}`,
-    ],
+        jgs          ,-'==,\\
+                          ,-\`==;`,
+    attribution: "art: jgs",
+    thinkingTop: "pigeon is thinking",
+    thinkingBottom: "eyes on the ledge",
+    tipLabel: "Pigeon Tip",
     statuses: [
-      "scanning ledges for crumbs",
+      "pigeons on the ledge · crumbs in the queue",
       "spotting bugs from above",
       "head-bobbing through the diff",
       "suspicious of the new framework",
       "remembered something tangential",
     ],
     tips: [
-      "crumb on line 47 — wait what was the question",
+      "crumb on line 47, wait what was the question",
       "every endpoint is a feeding station. some give bread. some give panic",
       "small commits are easier to peck through",
       "git blame is just bird-watching with extra steps",
@@ -400,7 +210,6 @@ snd     |   Y    ,   |`,
 }
 
 const KEYS = Object.keys(CREATURES) as (keyof typeof CREATURES)[]
-const FRAME_MS = 350
 const STATUS_MS = 3500
 const TIP_MS = 12000
 const ROTATE_MS = 11000
@@ -409,28 +218,25 @@ function rand<T>(arr: T[]): number {
   return Math.floor(Math.random() * arr.length)
 }
 
+function pickCreature(mode: Mode, sessionSeed: number): keyof typeof CREATURES {
+  if (mode !== "all") return mode
+  return KEYS[sessionSeed % KEYS.length]!
+}
+
 const tui: TuiPlugin = async (api, options) => {
   if (process.env.OPENCREATURE_OFF) return
 
   const raw = (options?.mode as string | undefined) ?? "all"
   const mode: Mode = (KEYS as string[]).includes(raw) ? (raw as Mode) : "all"
 
-  const renderCreature = (paddingX: number) => () => {
+  const useState = () => {
     const [creatureIndex, setCreatureIndex] = createSignal(0)
-    const [frame, setFrame] = createSignal(0)
     const [status, setStatus] = createSignal(0)
     const [tip, setTip] = createSignal(0)
     const theme = () => api.theme.current
 
     const list = mode === "all" ? KEYS : [mode as keyof typeof CREATURES]
     const current = createMemo(() => CREATURES[list[creatureIndex() % list.length]!])
-
-    createEffect(() => {
-      const id = setInterval(() => {
-        setFrame((f) => (f + 1) % current().frames.length)
-      }, FRAME_MS)
-      onCleanup(() => clearInterval(id))
-    })
 
     createEffect(() => {
       const id = setInterval(() => {
@@ -451,38 +257,58 @@ const tui: TuiPlugin = async (api, options) => {
       if (list.length <= 1) return
       const id = setInterval(() => {
         setCreatureIndex((i) => i + 1)
-        setFrame(0)
         setStatus(0)
       }, ROTATE_MS)
       onCleanup(() => clearInterval(id))
     })
 
-    const lines = createMemo(() => current().frames[frame()]!.split("\n"))
-
-    return (
-      <box flexDirection="column" marginTop={1} paddingX={paddingX}>
-        <text fg={current().defaultFg}><b>{current().label}</b></text>
-        <text fg={theme().textMuted}>· {current().statuses[status()]}</text>
-        <For each={lines()}>
-          {(line) => (
-            <text>
-              <For each={parseSegments(line, current().palette, current().defaultFg)}>
-                {(s) => <span {...({ fg: s.fg } as any)}>{s.text}</span>}
-              </For>
-            </text>
-          )}
-        </For>
-        <text fg={theme().textMuted}>{current().attribution}</text>
-        <text fg={theme().textMuted}>tip: {current().tips[tip()]}</text>
-      </box>
-    )
+    return { current, status, tip, theme }
   }
 
   api.slots.register({
     order: 100,
     slots: {
-      home_bottom: renderCreature(1),
-      sidebar_content: renderCreature(0),
+      home_bottom: () => {
+        const { current, status, theme } = useState()
+        const miniLines = createMemo(() => current().miniArt.split("\n"))
+        return (
+          <box flexDirection="column" alignItems="center" marginTop={1} marginBottom={1}>
+            <text fg={current().fg}><b>{current().title}</b></text>
+            <text fg={theme().textMuted}>{current().tagline}</text>
+            <text> </text>
+            <For each={miniLines()}>
+              {(line) => <text fg={current().fg}>{line}</text>}
+            </For>
+            <text> </text>
+            <text fg={theme().textMuted}>{DOTS}</text>
+            <text> </text>
+            <text fg={theme().textMuted}>{current().statuses[status()]}</text>
+          </box>
+        )
+      },
+      home_footer: () => {
+        const { current, tip, theme } = useState()
+        return (
+          <box flexDirection="row" alignItems="center" justifyContent="center" marginTop={1}>
+            <text fg={current().fg}>~ {current().tipLabel} </text>
+            <text fg={theme().textMuted}>{current().tips[tip()]}</text>
+          </box>
+        )
+      },
+      sidebar_content: () => {
+        const { current } = useState()
+        const fullLines = createMemo(() => current().fullArt.split("\n"))
+        return (
+          <box flexDirection="column" marginTop={1} paddingX={1}>
+            <For each={fullLines()}>
+              {(line) => <text fg={current().fg}>{line}</text>}
+            </For>
+            <text> </text>
+            <text fg={current().fg}>{current().thinkingTop}</text>
+            <text fg={current().fg}>{current().thinkingBottom}</text>
+          </box>
+        )
+      },
     },
   })
 }
